@@ -24,7 +24,17 @@
 #include "IdEcoInterfaceBus1.h"
 #include "IdEcoFileSystemManagement1.h"
 #include "IdEcoLab1.h"
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
 #include <stdio.h>
+
+#include "IEcoCalculatorX.h"
+#include "IEcoCalculatorY.h"
+#include "IdEcoCalculatorA.h"
+#include "IdEcoCalculatorB.h"
+#include "IdEcoCalculatorD.h"
+#include "IdEcoCalculatorE.h"
 
 /*
  *
@@ -93,39 +103,126 @@ int16_t EcoMain(IEcoUnknown* pIUnk) {
         goto Release;
     }
 
+	printf("\n=== Calculator Interfaces Demonstration ===\n\n");
+
+    /* IEcoCalculatorX напрямую из IEcoLab1 */
+    if (pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoCalculatorX, (void**)&pIX) == 0 && pIX) {
+        printf("IEcoCalculatorX obtained directly from IEcoLab1\n");
+        printf(" 1) 1337 + 812 = %d\n", pIX->pVTbl->Addition(pIX, 1337, 812));
+        printf(" 2) 321 - 123 = %d\n", pIX->pVTbl->Subtraction(pIX, 321, 123));
+
+        /* IEcoUnknown через IEcoCalculatorX */
+        if (pIX->pVTbl->QueryInterface(pIX, &IID_IEcoUnknown, (void**)&pOtherIUnknown) == 0 && pOtherIUnknown) {
+            printf("IEcoUnknown obtained from IEcoCalculatorX\n");
+            pOtherIUnknown->pVTbl->Release(pOtherIUnknown);
+        } else {
+            printf("Error: Failed to get IEcoUnknown from IEcoCalculatorX\n");
+        }
+
+        /* IEcoCalculatorY через IEcoCalculatorX */
+        if (pIX->pVTbl->QueryInterface(pIX, &IID_IEcoCalculatorY, (void**)&pOtherIY) == 0 && pOtherIY) {
+            printf("IEcoCalculatorY obtained from IEcoCalculatorX\n");
+            printf(" 1) 52 * 42 = %d\n", pOtherIY->pVTbl->Multiplication(pOtherIY, 52, 42));
+            printf(" 2) 333 / 33 = %d\n", pOtherIY->pVTbl->Division(pOtherIY, 333, 33));
+            pOtherIY->pVTbl->Release(pOtherIY);
+        } else {
+            printf("Error: Failed to get IEcoCalculatorY from IEcoCalculatorX\n");
+        }
+
+        /* IEcoLab1 через IEcoCalculatorX */
+        if (pIX->pVTbl->QueryInterface(pIX, &IID_IEcoLab1, (void**)&pOtherIEcoLab1) == 0 && pOtherIEcoLab1) {
+            printf("IEcoLab1 obtained from IEcoCalculatorX\n");
+            pOtherIEcoLab1->pVTbl->Release(pOtherIEcoLab1);
+        } else {
+            printf("Error: Failed to get IEcoLab1 from IEcoCalculatorX\n");
+        }
+
+        pIX->pVTbl->Release(pIX);
+    }
+    else {
+        printf("Error: Failed to get IEcoCalculatorX from IEcoLab1\n");
+    }
+    printf("\n");
+
+    /* IEcoCalculatorY напрямую из IEcoLab1 */
+    if (pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoCalculatorY, (void**)&pIY) == 0 && pIY) {
+        printf("IEcoCalculatorY obtained directly from IEcoLab1\n");
+        printf(" 1) 13 * 100 = %d\n", pIY->pVTbl->Multiplication(pIY, 13, 100));
+        printf(" 2) 99 / 11 = %d\n", pIY->pVTbl->Division(pIY, 99, 11));
+
+        /* IEcoUnknown через IEcoCalculatorY */
+        if (pIY->pVTbl->QueryInterface(pIY, &IID_IEcoUnknown, (void**)&pOtherIUnknown) == 0 && pOtherIUnknown) {
+            printf("IEcoUnknown obtained from IEcoCalculatorY\n");
+            pOtherIUnknown->pVTbl->Release(pOtherIUnknown);
+        } else {
+            printf("Error: Failed to get IEcoUnknown from IEcoCalculatorY\n");
+        }
+
+        /* IEcoCalculatorX через IEcoCalculatorY */
+        if (pIY->pVTbl->QueryInterface(pIY, &IID_IEcoCalculatorX, (void**)&pOtherIX) == 0 && pOtherIX) {
+            printf("IEcoCalculatorX obtained from IEcoCalculatorY\n");
+            printf(" 1) 555 + 777 = %d\n", pOtherIX->pVTbl->Addition(pOtherIX, 555, 777));
+            printf(" 2) 450 - 50 = %d\n", pOtherIX->pVTbl->Subtraction(pOtherIX, 450, 50));
+            pOtherIX->pVTbl->Release(pOtherIX);
+        } else {
+            printf("Error: Failed to get IEcoCalculatorX from IEcoCalculatorY\n");
+        }
+
+        /* IEcoLab1 через IEcoCalculatorY */
+        if (pIY->pVTbl->QueryInterface(pIY, &IID_IEcoLab1, (void**)&pOtherIEcoLab1) == 0 && pOtherIEcoLab1) {
+            printf("IEcoLab1 obtained from IEcoCalculatorY\n");
+            pOtherIEcoLab1->pVTbl->Release(pOtherIEcoLab1);
+        } else {
+            printf("Error: Failed to get IEcoLab1 from IEcoCalculatorY\n");
+        }
+
+        pIY->pVTbl->Release(pIY);
+    }
+    else {
+        printf("Error: Failed to get IEcoCalculatorY from IEcoLab1\n");
+    }
+	 printf("\n");
+
+	/* Получаем IEcoUnknown из IEcoLab1 */
+    if (pIEcoLab1->pVTbl->QueryInterface(pIEcoLab1, &IID_IEcoUnknown, (void**)&pIUnknown) == 0 && pIUnknown) {
+        printf("IEcoUnknown obtained from IEcoLab1\n");
+
+        /* IEcoLab1 через IEcoUnknown */
+        if (pIUnknown->pVTbl->QueryInterface(pIUnknown, &IID_IEcoLab1, (void**)&pOtherIEcoLab1) == 0 && pOtherIEcoLab1) {
+            printf("IEcoLab1 obtained from IEcoUnknown\n");
+            pOtherIEcoLab1->pVTbl->Release(pOtherIEcoLab1);
+        } else {
+            printf("Error: Failed to get IEcoLab1 from IEcoUnknown\n");
+        }
+
+        /* IEcoCalculatorX через IEcoUnknown */
+        if (pIUnknown->pVTbl->QueryInterface(pIUnknown, &IID_IEcoCalculatorX, (void**)&pOtherIX) == 0 && pOtherIX) {
+            printf("IEcoCalculatorX obtained from IEcoUnknown\n");
+            printf(" 1) 44 + 66 = %d\n", pOtherIX->pVTbl->Addition(pOtherIX, 44, 66));
+            printf(" 2) 999 - 9 = %d\n", pOtherIX->pVTbl->Subtraction(pOtherIX, 999, 9));
+            pOtherIX->pVTbl->Release(pOtherIX);
+        } else {
+            printf("Error: Failed to get IEcoCalculatorX from IEcoUnknown\n");
+        }
+
+        /* IEcoCalculatorY через IEcoUnknown */
+        if (pIUnknown->pVTbl->QueryInterface(pIUnknown, &IID_IEcoCalculatorY, (void**)&pOtherIY) == 0 && pOtherIY) {
+            printf("IEcoCalculatorY obtained from IEcoUnknown\n");
+            printf(" 1) 10 * 100 = %d\n", pOtherIY->pVTbl->Multiplication(pOtherIY, 10, 100));
+            printf(" 2) 1000 / 5 = %d\n", pOtherIY->pVTbl->Division(pOtherIY, 1000, 5));
+            pOtherIY->pVTbl->Release(pOtherIY);
+        } else {
+            printf("Error: Failed to get IEcoCalculatorY from IEcoUnknown\n");
+        }
+
+        pIUnknown->pVTbl->Release(pIUnknown);
+    } else {
+        printf("Error Failed to get IEcoUnknown from IEcoLab1\n");
+    }
+
+    printf("\n=== End of Interface Demonstration ===\n\n");
+
     printf("=== ТЕСТИРОВАНИЕ КОМПОНЕНТА CEcoLab1 ===\n\n");
-
-    /* ТЕСТИРОВАНИЕ КАЛЬКУЛЯТОРА */
-    printf("--- Calculator test ---\n");
-    
-    /* Тест сложения */
-    addResult = pIEcoLab1->pVTbl->CalcAdd(pIEcoLab1, 15, 7);
-    printf("Addition: 15 + 7 = %d\n", addResult);
-    
-    addResult = pIEcoLab1->pVTbl->CalcAdd(pIEcoLab1, -5, 10);
-    printf("Addition: -5 + 10 = %d\n", addResult);
-    
-    addResult = pIEcoLab1->pVTbl->CalcAdd(pIEcoLab1, 100, 200);
-    printf("Addition: 100 + 200 = %d\n", addResult);
-    
-    /* Тест вычитания */
-    subResult = pIEcoLab1->pVTbl->CalcSubtract(pIEcoLab1, 20, 8);
-    printf("Subtraction: 20 - 8 = %d\n", subResult);
-    
-    subResult = pIEcoLab1->pVTbl->CalcSubtract(pIEcoLab1, 5, 12);
-    printf("Subtraction: 5 - 12 = %d\n", subResult);
-    
-    subResult = pIEcoLab1->pVTbl->CalcSubtract(pIEcoLab1, 1000, 500);
-    printf("Subtraction: 1000 - 500 = %d\n", subResult);
-    
-    /* Комплексный тест */
-    printf("\nComplex test:\n");
-    addResult = pIEcoLab1->pVTbl->CalcAdd(pIEcoLab1, 50, 25);
-    subResult = pIEcoLab1->pVTbl->CalcSubtract(pIEcoLab1, addResult, 10);
-    printf("(50 + 25) - 10 = %d\n", subResult);
-
-     printf("--- Calculator test finished ---\n\n");
-
 
     /* Тестирование функции MyFunction */
     name = (char_t *)pIMem->pVTbl->Alloc(pIMem, 10);

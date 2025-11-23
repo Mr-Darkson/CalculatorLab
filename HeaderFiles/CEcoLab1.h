@@ -23,7 +23,9 @@
 #include "IEcoLab1.h"
 #include "IEcoSystem1.h"
 #include "IdEcoMemoryManager1.h"
-#include "IEcoCalculatorX.h" // почему-то X, а не А
+#include "IEcoCalculatorX.h"
+#include "IEcoCalculatorY.h"
+
 
 
 typedef struct CEcoLab1 {
@@ -31,6 +33,14 @@ typedef struct CEcoLab1 {
     /* Таблица функций интерфейса IEcoLab1 */
     IEcoLab1VTbl* m_pVTblIEcoLab1;
 
+	/* Таблица функций интерфейса IEcoCalculatorY */
+    IEcoCalculatorYVTbl* m_pVTblY;
+
+    /* Таблица функций интерфейса IEcoCalculatorX */
+    IEcoCalculatorXVTbl* m_pVTblX;
+
+    /* Неделегирующий интерфейс IEcoNondelegatingUnknown */
+    IEcoUnknownVTbl* m_pVTblINondelegatingUnk;
 
     /* Счетчик ссылок */
     uint32_t m_cRef;
@@ -41,12 +51,20 @@ typedef struct CEcoLab1 {
     /* Системный интерфейс */
     IEcoSystem1* m_pISys;
 
-    /* Данные экземпляра */
-    char_t* m_Name;
+	/* Ссылка на внутренний компонент для включения, может быть получен из D или E */
+    IEcoCalculatorY* m_pIY;
 
-	/* Указатель на интерфейс IEcoCalculatorX включаемого компонента */
+    /* Ссылка на внутренний компонент для включения, может быть получен из A */
     IEcoCalculatorX* m_pIX;
 
+    /* Ссылка на интерфейс IEcoUnknown внутреннего агрегируемого компонента B */
+    IEcoUnknown* m_pInnerUnknown;
+
+	/* Делегирующий IEcoUnknown, указывает на внешний или неделегирующий IEcoUnknown */
+    IEcoUnknown* m_pIUnkOuter;
+
+    /* Данные экземпляра */
+    char_t* m_Name;
 
 } CEcoLab1, *CEcoLab1Ptr;
 
@@ -56,7 +74,5 @@ int16_t ECOCALLMETHOD initCEcoLab1(/*in*/ struct IEcoLab1* me, /* in */ IEcoUnkn
 int16_t ECOCALLMETHOD createCEcoLab1(/* in */ IEcoUnknown* pIUnkSystem, /* in */ IEcoUnknown* pIUnkOuter, /* out */ IEcoLab1** ppIEcoLab1);
 /* Удаление */
 void ECOCALLMETHOD deleteCEcoLab1(/* in */ IEcoLab1* pIEcoLab1);
-
-static void swap_int64(int64_t* a, int64_t* b);
 
 #endif /* __C_ECOLAB1_H__ */

@@ -23,10 +23,6 @@ typedef struct IEcoLab1VTbl {
     /* Сортировка перемешиванием для разных типов данных */
     int16_t (ECOCALLMETHOD *cocktail_sort_int64)(/* in */ IEcoLab1Ptr_t me, /* in */ int64_t* array, /* in */ uint32_t n);
 
-	/* CalculatorA */
-	int32_t (ECOCALLMETHOD *CalcAdd)(/* in */ IEcoLab1Ptr_t me, /* in */ int16_t a, /* in */ int16_t b);
-    int16_t (ECOCALLMETHOD *CalcSubtract)(/* in */ IEcoLab1Ptr_t me, /* in */ int16_t a, /* in */ int16_t b);
-
 } IEcoLab1VTbl, *IEcoLab1VTblPtr;
 
 interface IEcoLab1 {
